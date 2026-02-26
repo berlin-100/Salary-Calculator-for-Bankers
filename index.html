@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* Blue Theme Styles */
+:root {
+  --primary-color: #0047AB; /* Deep Blue */
+  --secondary-color: #0077B6; /* Sky Blue */
+  --background-light: #E0F7FA; /* Very Light Cyan */
+  --card-background: #BBDEFB; /* Light Blue */
+  --text-dark: #1A237E; /* Dark Indigo */
+  --text-light: #ffffff;
+  --button-hover-dark: #003380;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, var(--background-light) 0%, #B3E5FC 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 650px;
+    width: 100%;
+    background: var(--text-light);
+    border-radius: 25px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 0 0 0 10px rgba(0, 71, 171, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+}
+
+h2, h3 {
+    margin: 0;
+    padding: 0;
+    color: var(--primary-color);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 900;
+}
+
+label {
+    display: block;
+    margin-top: 20px;
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Styles for all input/select fields */
+select, input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border-radius: 12px;
+    border: 2px solid #DEDEDE;
+    font-size: 1.05rem;
+    background-color: #FAFAFA;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+}
+
+select:focus, input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 10px rgba(0, 119, 182, 0.5);
+    outline: none;
+    background-color: var(--text-light);
+}
+
+/* NEW: Style for read-only/disabled input to indicate it's auto-calculated */
+input[readonly], input:disabled {
+    background-color: #CFD8DC !important; /* Lighter grey background */
+    cursor: not-allowed;
+    border-color: #B0BEC5 !important;
+}
+
+button {
+    margin-top: 25px;
+    padding: 16px;
+    width: 100%;
+    background: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.3s ease-in-out;
+    box-shadow: 0 5px 15px rgba(0, 71, 171, 0.4);
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    background: var(--secondary-color);
+    box-shadow: 0 8px 20px rgba(0, 71, 171, 0.6);
+    transform: translateY(-3px) scale(1.01);
+}
+
+.secondary-button {
+    background: #607D8B;
+    margin-top: 15px;
+    box-shadow: 0 3px 10px rgba(96, 125, 139, 0.4);
+}
+
+.secondary-button:hover {
+    background: #455A64; /* Darker Grey */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(96, 125, 139, 0.6); /* Adjusted shadow to match grey theme */
+}
+
+.footer {
+    text-align: center;
+    margin-top: 30px;
+    font-style: normal;
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+#resultPage, #deductionPage {
+    display: none;
+}
+
+.result-card, .deduction-card {
+    background: var(--card-background);
+    border-radius: 25px;
+    padding: 35px;
+    box-shadow: 0 10px 30px rgba(0, 71, 171, 0.3);
+    border: 2px dashed var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.gross-display {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.gross-display p {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    font-weight: 500;
+    margin: 0;
+}
+
+.gross-display span {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    font-weight: 900;
+    display: block;
+    margin-top: 5px;
+}
+
+.result-card .gross, #finalInHandSalary {
+    font-size: 3.5rem;
+    color: var(--text-dark);
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 30px;
+    letter-spacing: -1px;
+    text-shadow: 2px 2px var(--text-light);
+}
+
+.breakup p {
+    margin: 12px 0;
+    font-size: 1.15rem;
+    padding: 5px 10px;
+    border-left: 5px solid var(--primary-color);
+    background-color: #ffffff;
+    border-radius: 5px;
+}
+
+.breakup b {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.deduction-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Fields should be equal in width and height */
+.deduction-name-input-combined, .deduction-amount-input {
+	width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border-radius: 12px;
+    border: 2px solid #DEDEDE;
+    font-size: 1.05rem;
+    background-color: #FAFAFA;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
+    flex: 1; 
+    margin-top: 0; 
+}
+
+/* FIX: Ensure the amount input design matches the name input.
+   This overrides any browser-specific rendering or hidden styles that give it a different look. */
+.deduction-amount-input {
+    /* Replicate the primary input styles */
+    border-radius: 12px !important; 
+    border: 2px solid #DEDEDE !important; 
+    background-color: #FAFAFA !important;
+    box-shadow: none !important; /* Remove any default shadows that make it look different */
+}
+
+.deduction-amount-input:focus {
+    /* Replicate the primary input focus styles */
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 10px rgba(0, 119, 182, 0.5) !important;
+    background-color: var(--text-light) !important;
+}
+
+
+.remove-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    font-size: 1.5rem;
+    background: #E57373;
+    border-radius: 50%;
+    line-height: 40px;
+    box-shadow: none;
+    flex-shrink: 0;
+}
+
+.remove-btn:hover {
+    background: #C62828;
+    transform: scale(1.05);
+}
+
+#addDeductionBtn {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin-top: 15px;
+    display: block;
+    float: right;
+    border-radius: 10px;
+}
+
+.salary-output {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    background: #E0F2F7;
+    border-radius: 15px;
+    border: 1px solid var(--secondary-color);
+}
+.salary-output h3 {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    margin-top: 0;
+}
+
+/* Final salary style */
+.salary-output #finalInHandSalary {
+    font-size: 3.5rem;
+    color: var(--text-dark);
+    font-weight: 900;
+    text-align: center;
+    letter-spacing: -1px;
+    text-shadow: 2px 2px var(--text-light);
+}
+
+@media(max-width:600px) {
+    .container { padding: 25px; border-radius: 20px; }
+    h2 { font-size: 2rem; }
+    button { font-size: 1.1rem; padding: 14px; }
+    .result-card .gross { font-size: 2.8rem; }
+    .deduction-row { flex-direction: column; gap: 5px; align-items: stretch; }
+    .deduction-name-input-combined, .deduction-amount-input { width: 100%; margin-top: 0; }
+    .remove-btn { margin-top: 10px; width: 100%; border-radius: 10px; height: auto; padding: 10px 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="inputPage">
+
+<h2>💰 Salary Calculator ✨</h2>
+
+<label for="scale">Select Officer Scale:</label>
+<select id="scale" onchange="populateBasic()">
+  <option value="">-- Select Scale --</option>
+  <option value="I">Scale I</option>
+  <option value="II">Scale II</option>
+  <option value="III">Scale III</option>
+  <option value="IV">Scale IV</option>
+  <option value="V">Scale V</option>
+  <option value="VI">Scale VI</option>
+  <option value="VII">Scale VII</option>
+</select>
+
+<label for="basic">Select Basic Pay:</label>
+<select id="basic">
+  <option value="">-- Select Basic Pay --</option>
+</select>
+
+<label for="city">Select City Type:</label>
+<select id="city">
+  <option value="A">Major A class / Project area centers (10%)</option>
+  <option value="B">Area 1 / Project B / Goa (9%)</option>
+  <option value="C">Other cities (8%)</option>
+</select>
+
+<label for="cca">Select CCA / Location:</label>
+<select id="cca">
+  <option value="2300">Area1 & Goa → ₹2300</option>
+  <option value="1900">State capitals 5L+ pop etc → ₹1900</option>
+  <option value="1200">Other → ₹1200</option>
+</select>
+
+<label for="daRate">Enter DA Rate (%):</label>
+<input type="number" id="daRate" value="25.00" step="0.01">
+
+<button onclick="calculateSalary()">Calculate Your Gross Salary 🚀</button>
+
+<div class="footer">— Uttar Pradesh Gramin Bank 🇮🇳 | Designed by Berlin —</div>
+</div>
+
+<div class="container" id="resultPage">
+<h2>💸 Gross Salary Details 📝</h2>
+<div class="result-card">
+  <div class="gross" id="grossSalary"></div>
+  <div class="breakup" id="breakup"></div>
+</div>
+<button onclick="goToDeductionPage()">Add Deductions & Calculate In Hand Salary ➖</button>
+<button onclick="goBack('inputPage')" class="secondary-button">← Go Back to Calculator</button>
+</div>
+
+<div class="container" id="deductionPage">
+<h2>✂️ Deduction Details</h2>
+<div class="deduction-card">
+
+  <div class="gross-display">
+    <p>Your Calculated Gross Salary is:</p>
+    <span id="deductionGrossDisplay">₹0</span>
+  </div>
+  
+  <label>Add Deductions (Select or Type Custom Name)</label>
+  <div id="deductionInputs">
+    <div class="deduction-row">
+      <input 
+        list="deduction-options" 
+        class="deduction-name-input-combined" 
+        placeholder="Select or type deduction name" 
+        value="NPS"
+        onchange="handleDeductionChange(this)"
+      >
+      <input type="number" class="deduction-amount-input" placeholder="Amount (₹)" value="">
+      <button class="remove-btn secondary-button" onclick="removeDeduction(this)">X</button>
+    </div>
+  </div>
+  
+  <button id="addDeductionBtn" onclick="addDeductionRow()">+ Add New Deduction</button>
+  <div style="clear:both;"></div>
+
+  <datalist id="deduction-options">
+      <option value="NPS">
+      <option value="PF">
+      <option value="Home Loan">
+      <option value="Car Loan">
+      <option value="Income Tax">
+      <option value="Festival Advance">
+      <option value="Union Fee">
+      <option value="Professional Tax">
+  </datalist>
+
+  <button onclick="calculateNetSalary()">Check In Hand Salary ✅</button>
+  
+  <div class="salary-output">
+    <h3>Net In Hand Salary:</h3>
+    <div id="finalInHandSalary">₹0</div>
+  </div>
+
+  <button onclick="goBack('resultPage')" class="secondary-button">← Go Back to Result</button>
+  <button onclick="goBack('inputPage')" class="secondary-button">← Go Back to Calculator</button>
+</div>
+</div>
+
+<script>
+let currentGrossSalary = 0; // Global variable to store gross salary
+let npsAmount = 0; // MODIFIED: Global variable for 10% of Basic + DA
+let pfAmount = 0;  // NEW: Global variable for 10% of Basic ONLY
+
+const basicPay = {
+  "I": [48480,50480,52480,54480,56480,58480,60480,62480,64820,67160,69840,72520,75200,77880,80560,83240,85920],
+  "II": [64820,67160,69840,72520,75200,77880,80560,83240,85920,88600,91280,93960],
+  "III": [85920,88600,91280,93960,96640,99320,102300,105280],
+  "IV": [102300,105280,108260,111240,114220,117580,120940],
+  "V": [120940,124300,127660,131340,135020],
+  "VI": [140500,144500,148500,152500,156500],
+  "VII": [156500,160840,165180,169520,173860]
+};
+
+function getSpecialAllowance(scale){
+  switch(scale){
+    case "I": return 0.265;
+    case "II": case "III": return 0.283;
+    case "IV": case "V": return 0.305;
+    case "VI": case "VII": return 0.315;
+    default: return 0;
+  }
+}
+
+function getHRA(cityType){
+  switch(cityType){
+    case "A": return 0.10;
+    case "B": return 0.09;
+    case "C": return 0.08;
+    default: return 0;
+  }
+}
+
+function populateBasic(){
+  let scale = document.getElementById("scale").value;
+  let basicDropdown = document.getElementById("basic");
+  basicDropdown.innerHTML = '<option value="">-- Select Basic Pay --</option>';
+  if(scale && basicPay[scale]){
+    basicPay[scale].forEach(val=>{
+      let opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = "₹" + val.toLocaleString();
+      basicDropdown.appendChild(opt);
+    });
+  }
+}
+
+function round2(value){ return Math.round(value*100)/100; }
+
+function calculateSalary(){
+  let scale = document.getElementById("scale").value;
+  let basic = parseInt(document.getElementById("basic").value);
+  let city = document.getElementById("city").value;
+  let cca = parseInt(document.getElementById("cca").value);
+  let daInput = parseFloat(document.getElementById("daRate").value)/100;
+
+  if(!basic){ alert("Please select a basic pay!"); return;}
+  if(isNaN(daInput)||daInput<0){ alert("Enter valid DA rate!"); return;}
+
+  let DA = round2(basic*daInput);
+  let HRA = round2(basic*getHRA(city));
+  let special = round2(basic*getSpecialAllowance(scale));
+  let DA_on_special = round2(special*daInput);
+  let learning = round2(850+(850*daInput));
+  let gross = round2(basic+DA+HRA+special+DA_on_special+learning+cca);
+  
+  currentGrossSalary = gross; // Store gross salary globally
+  
+  // MODIFIED: Calculate NPS Amount (10% of Basic + DA)
+  npsAmount = round2((basic + DA) * 0.10); 
+  
+  // NEW: Calculate PF Amount (10% of Basic ONLY)
+  pfAmount = round2(basic * 0.10); 
+
+  // Populate result page
+  document.getElementById("grossSalary").textContent = "₹" + gross.toLocaleString();
+  let breakupHtml = `
+    <p><b>Basic Pay:</b> ₹${basic.toLocaleString()}</p>
+    <p><b>Dearness Allowance:</b> ₹${DA.toLocaleString()}</p>
+    <p><b>House Rent Allowance:</b> ₹${HRA.toLocaleString()}</p>
+    <p><b>Special Allowance:</b> ₹${special.toLocaleString()}</p>
+    <p><b>DA on Special Allowance:</b> ₹${DA_on_special.toLocaleString()}</p>
+    <p><b>Learning Allowance:</b> ₹${learning.toLocaleString()}</p>
+    <p><b>CCA / Location Allowance:</b> ₹${cca.toLocaleString()}</p>
+  `;
+  document.getElementById("breakup").innerHTML = breakupHtml;
+
+  // Switch pages
+  document.getElementById("inputPage").style.display = "none";
+  document.getElementById("resultPage").style.display = "block";
+  document.getElementById("deductionPage").style.display = "none";
+}
+
+// --- START: New/Modified Deduction Functions ---
+
+function createDeductionRow() {
+    const newRow = document.createElement("div");
+    newRow.classList.add("deduction-row");
+    newRow.innerHTML = `
+      <input 
+        list="deduction-options" 
+        class="deduction-name-input-combined" 
+        placeholder="Select or type deduction name" 
+        value=""
+        onchange="handleDeductionChange(this)"
+      >
+      <input type="number" class="deduction-amount-input" placeholder="Amount (₹)" value="">
+      <button class="remove-btn secondary-button" onclick="removeDeduction(this)">X</button>
+    `;
+    return newRow;
+}
+
+// MODIFIED: Handles auto-fill and protects the NPS or PF value with correct calculations
+function handleDeductionChange(nameInput) {
+    const deductionRow = nameInput.closest('.deduction-row');
+    const amountInput = deductionRow.querySelector('.deduction-amount-input');
+    
+    const deductionName = nameInput.value.trim().toUpperCase();
+
+    if (deductionName === 'NPS') {
+        // NPS: 10% of Basic + DA
+        amountInput.value = npsAmount.toFixed(2);
+        amountInput.readOnly = true;
+        amountInput.disabled = true;
+    } else if (deductionName === 'PF') {
+        // PF: 10% of Basic ONLY
+        amountInput.value = pfAmount.toFixed(2);
+        amountInput.readOnly = true;
+        amountInput.disabled = true;
+    } else {
+        // If any other deduction is selected or typed, ensure the input is enabled
+        amountInput.readOnly = false;
+        amountInput.disabled = false;
+        // If the name input is cleared, also clear the amount
+        if (deductionName === '') {
+             amountInput.value = '';
+        }
+    }
+}
+
+function goToDeductionPage(){
+    // Set gross salary display on deduction page
+    document.getElementById("deductionGrossDisplay").textContent = "₹" + currentGrossSalary.toLocaleString();
+    document.getElementById("finalInHandSalary").textContent = "₹0"; // Reset final salary display
+    
+    // Clear any extra rows added by the user in a previous session
+    const deductionContainer = document.getElementById("deductionInputs");
+    let rows = deductionContainer.querySelectorAll('.deduction-row');
+    
+    // Remove all rows except the first one (index 0)
+    for (let i = 1; i < rows.length; i++) {
+        rows[i].remove();
+    }
+
+    // Reset the first row (default NPS) and set its amount/lock it
+    const firstRowNameInput = deductionContainer.querySelector(".deduction-name-input-combined");
+    firstRowNameInput.value = 'NPS'; // Ensure the default is NPS
+
+    // Use the handler to set the value and lock the input
+    handleDeductionChange(firstRowNameInput); 
+
+    document.getElementById("resultPage").style.display = "none";
+    document.getElementById("deductionPage").style.display = "block";
+}
+
+function addDeductionRow(){
+    const container = document.getElementById("deductionInputs");
+    // This correctly appends the new row after all existing rows, ensuring new rows appear at the bottom.
+    container.appendChild(createDeductionRow()); 
+}
+
+function removeDeduction(buttonElement){
+    buttonElement.closest('.deduction-row').remove();
+    // Reset final salary display after deduction change, user must click 'Check' again
+    document.getElementById("finalInHandSalary").textContent = "₹0"; 
+}
+
+function calculateNetSalary(){
+    let totalDeductions = 0;
+    const deductionInputs = document.querySelectorAll(".deduction-amount-input");
+    const nameInputs = document.querySelectorAll(".deduction-name-input-combined");
+
+    let isNPSSelected = false;
+    let isPFSelected = false;
+    
+    // 1. Check for NPS/PF selection
+    nameInputs.forEach(input => {
+        const name = input.value.trim().toUpperCase();
+        if (name === 'NPS') {
+            isNPSSelected = true;
+        } else if (name === 'PF') {
+            isPFSelected = true;
+        }
+    });
+
+    // 2. Enforce the requirement: At least one of NPS or PF must be selected
+    if (!isNPSSelected && !isPFSelected) {
+        // Show an error message and prevent calculation
+        document.getElementById("finalInHandSalary").textContent = "❌ ERROR";
+        alert("You must select either NPS or PF (or both) to calculate your Net In Hand Salary.");
+        return;
+    }
+
+
+    // 3. Calculate total deductions
+    deductionInputs.forEach(input => {
+        // Disabled inputs (like NPS or PF) are still included and their values are accessible.
+        let amount = parseFloat(input.value) || 0;
+        totalDeductions += amount;
+    });
+
+    let netSalary = round2(currentGrossSalary - totalDeductions);
+    
+    // Update the final in-hand salary display
+    document.getElementById("finalInHandSalary").textContent = "₹" + netSalary.toLocaleString();
+}
+
+// --- END: New/Modified Deduction Functions ---
+
+
+function goBack(pageId){
+  document.getElementById("resultPage").style.display = "none";
+  document.getElementById("inputPage").style.display = "none";
+  document.getElementById("deductionPage").style.display = "none";
+  document.getElementById(pageId).style.display = "block";
+}
+</script>
+
+</body>
+</html>
